@@ -28,6 +28,7 @@ namespace API.Controllers
 
             if(await UserExists(registerDto.Username)) return BadRequest("Username is already taken");
 
+            //MAC + SHA512 - salt (key) generated
             var hmac = new HMACSHA512();
 
             var user = new AppUser {
@@ -55,6 +56,7 @@ namespace API.Controllers
 
             if(user == null) return Unauthorized("Invalid user name");
 
+            //salt(key) is known
             using var hmac = new HMACSHA512(user.PasswordSalt);
 
             var memStream = new MemoryStream(Encoding.UTF8.GetBytes(loginDto.Password));
