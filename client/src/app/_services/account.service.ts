@@ -23,7 +23,6 @@ export class AccountService {
       .pipe(
         map((user) => {
           if(user) {
-            localStorage.setItem('user', JSON.stringify(user));
             this.setCurrentUser(user);
           }
           return user;
@@ -38,7 +37,6 @@ export class AccountService {
       .pipe(
         map((user) => {
           if(user) {
-            localStorage.setItem('user', JSON.stringify(user));
             this.setCurrentUser(user);
           }
           return user;
@@ -47,11 +45,12 @@ export class AccountService {
   }
 
   setCurrentUser(user: User | undefined) {
+    localStorage.setItem('user', JSON.stringify(user));
     this.currentUserSource.next(user);
   }
 
   logout() {
     localStorage.removeItem('user');
-    this.setCurrentUser(undefined);
+    this.currentUserSource.next(undefined);
   }
 }

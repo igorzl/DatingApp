@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,7 +29,7 @@ namespace API.Controllers
 
             if(await UserExists(registerDto.Username)) return BadRequest("Username is already taken");
 
-            //MAC + SHA512 - salt (key) generated
+            //1) encrypt password with generated MAC key (salt) + 2) hash SHA512 of encrypted value
             var hmac = new HMACSHA512();
 
             var user = new AppUser {
@@ -52,6 +53,7 @@ namespace API.Controllers
             //we don't use FindAsync, because it for primary key fields
             //we don't use FirstOrDefault
             var user = await _context.Users
+                .Include(user => user.Photos)
                 .SingleOrDefaultAsync(user => user.UserName == loginDto.Username.ToLower());
 
             if(user == null) return Unauthorized("Invalid user name");
@@ -74,7 +76,8 @@ namespace API.Controllers
 
             return new UserDto {
                 Username = user.UserName,
-                Token = _tokenService.CreateToken(user)
+                Token = _tokenService.CreateToken(user),
+                PhotoUrl = user.Photos.FirstOrDefault(x => x.IsMain)?.Url
             };
         }
 
