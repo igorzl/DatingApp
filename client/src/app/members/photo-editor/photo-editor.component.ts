@@ -36,11 +36,11 @@ export class PhotoEditorComponent implements OnInit {
   setMainPhoto(photo: Photo) {
     this.memberService.setMainPhoto(photo.id).subscribe(() => {
       //updates our client user main photo url
-      this.user.photoUrl = photo.url;
+      this.user.mainPhotoUrl = photo.url;
       //updates both our currentUser$ and photo inside local storage (if we re-open the browser)
       this.accountService.setCurrentUser(this.user);
       //updates our client member main photo url
-      this.member.photoUrl = photo.url;
+      this.member.mainPhotoUrl = photo.url;
       //updates all member photos isMain value
       this.member.photos.forEach(p => {
         if (p.isMain) p.isMain = false;
@@ -72,8 +72,13 @@ export class PhotoEditorComponent implements OnInit {
 
     this.uploader.onSuccessItem = (item, response, status, headers) => {
       if (response) {
-        const photo = JSON.parse(response);
+        const photo: Photo = JSON.parse(response);
         this.member.photos.push(photo);
+        if(photo.isMain) {
+          this.user.mainPhotoUrl = photo.url;
+          this.member.mainPhotoUrl = photo.url;
+          this.accountService.setCurrentUser(this.user);
+        }
       }
     }
   }

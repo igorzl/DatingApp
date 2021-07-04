@@ -33,7 +33,7 @@
     *ngIf="accountService.currentUser$ | async as user"
     dropdown
   >
-    <img src="{{user.photoUrl}}" alt="{{user.username}}"/>
+    <img src="{{user.mainPhotoUrl || './assets/user.png'}}" alt="{{user.username}}"/>
     <a class="dropdown-toggle text-light ml-2" dropdownToggle>
       Welcome {{ user.username | titlecase }}</a>
     <div class="dropdown-menu mt-3" *dropdownMenu>
@@ -44,7 +44,7 @@
   </div>
 
   <form
-    #loginForm="ngForm"
+    #myLoginForm="ngForm"
     *ngIf="!(accountService.currentUser$ | async)"
     (ngSubmit)="login()"
     autocomplete="off"

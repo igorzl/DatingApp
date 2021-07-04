@@ -15,6 +15,7 @@ import { MembersService } from 'src/app/_services/members.service';
 export class MemberEditComponent implements OnInit {
   member: Member = {} as Member;
   user: User = {} as User;
+  //see in markup: <form #editForm="ngForm" id="editForm" (ngSubmit)="updateMember()">
   @ViewChild('editForm') editForm: NgForm = {} as NgForm;
 
   @HostListener('window:beforeunload', ['$event']) unloadNotification($event: any) {
