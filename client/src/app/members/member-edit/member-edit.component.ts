@@ -13,7 +13,7 @@ import { MembersService } from 'src/app/_services/members.service';
   styleUrls: ['./member-edit.component.css']
 })
 export class MemberEditComponent implements OnInit {
-  member: Member = {} as Member;
+  member!: Member;
   user: User = {} as User;
   //see in markup: <form #editForm="ngForm" id="editForm" (ngSubmit)="updateMember()">
   @ViewChild('editForm') editForm: NgForm = {} as NgForm;

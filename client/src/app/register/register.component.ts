@@ -12,6 +12,15 @@ import { AccountService } from '../_services/account.service';
 })
 export class RegisterComponent implements OnInit {
 
+  //we create component intrinsic event that can be referenced in markup as (cancelRegister)
+  //e.g. <app-register (cancelRegister)="cancelRegisterMode($event)"></app-register>
+  //In this case we want to propagate child component event result to parent component (home.component)
+  //Actually we are clicking child component "Cancel" button that generates (emits) boolean data result:
+  // - this.cancelRegister.emit(false)
+  //Then we can use in parent "home.component" boolean data of the given event through ($event) param:
+  // cancelRegisterMode(eventData: boolean) {
+  //  this.registerMode = eventData;
+  // }
   @Output() cancelRegister = new EventEmitter();
 
   //model: any = {};

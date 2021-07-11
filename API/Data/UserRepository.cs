@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -66,10 +67,40 @@ namespace API.Data
             //     .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)
             //     .ToListAsync();
 
-            var query = _context.Users
+            var queryAppUser = _context.Users
+                .AsQueryable(); // for filtering
+
+            queryAppUser = queryAppUser.Where(u => u.UserName != userParams.CurrentUsername);
+            queryAppUser = queryAppUser.Where(u => u.Gender == userParams.Gender);
+
+            var maxDob = DateTime.Today.AddYears(- userParams.MinAge);
+            var minDob = DateTime.Today.AddYears(- userParams.MaxAge - 1);
+
+            queryAppUser = queryAppUser.Where(u => u.DateOfBirth >= minDob && u.DateOfBirth <= maxDob);
+
+            //new "switch" syntax
+            queryAppUser = userParams.OrderBy switch
+            {
+                "created" => queryAppUser.OrderByDescending(u => u.Created),
+                //default case
+                _ => queryAppUser.OrderByDescending(u => u.LastActive)
+            };
+
+            var queryMemberDto = queryAppUser
                 .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)
                 .AsNoTracking(); // readonly
-            return await PagedList<MemberDto>.CreateAsync(query, userParams.PageNumber, userParams.PageSize);
+
+            //here we will apply query on projected MemberDto structure
+
+            // var query = _context.Users
+            //                 .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)
+            //                 .AsNoTracking()
+            //                 .AsQueryable();
+            // query = query.Where(u => u.Username != userParams.CurrentUsername);
+            // query = query.Where(u => u.Gender == userParams.Gender);
+            // query = query.Where(u => u.Age <= userParams.MaxAge && u.Age >= userParams.MinAge);
+
+            return await PagedList<MemberDto>.CreateAsync(queryMemberDto, userParams.PageNumber, userParams.PageSize);
         }
 
     }
