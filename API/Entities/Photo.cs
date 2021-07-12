@@ -10,7 +10,8 @@ namespace API.Entities
         public bool IsMain { get; set; }
         public string PublicId { get; set; }
 
-        public AppUser AppUser { get; set; }
+        //out of use: on starting section 14
+        //public AppUser AppUser { get; set; }
         public int AppUserId { get; set; }
     }
 }
