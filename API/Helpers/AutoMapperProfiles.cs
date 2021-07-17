@@ -11,6 +11,7 @@ namespace API.Helpers
         public AutoMapperProfiles()
         {
             CreateMap<AppUser, MemberDto>()
+                //properties that cannot get mapped automatically
                 .ForMember(dest => dest.MainPhotoUrl,
                  opt => opt.MapFrom(src => src.Photos.FirstOrDefault(x => x.IsMain).Url))
                 .ForMember(dest => dest.Age,
@@ -18,6 +19,12 @@ namespace API.Helpers
             CreateMap<Photo, PhotoDto>();
             CreateMap<MemberUpdateDto, AppUser>();
             CreateMap<RegisterDto,AppUser>(); // because we are going to register almost the same object as AppUser object
+            //see analogy in CreateMap<AppUser, MemberDto>
+            CreateMap<Message, MessageDto>()
+                .ForMember(dest => dest.SenderPhotoUrl,
+                    opt => opt.MapFrom(src => src.Sender.Photos.FirstOrDefault(x => x.IsMain).Url))
+                .ForMember(dest => dest.RecipientPhotoUrl,
+                    opt => opt.MapFrom(src => src.Recipient.Photos.FirstOrDefault(x => x.IsMain).Url));
         }
     }
 }

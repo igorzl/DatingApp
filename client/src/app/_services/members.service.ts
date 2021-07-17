@@ -4,10 +4,11 @@ import { of } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Member } from '../_models/member';
-import { PaginatedResult } from '../_models/pagination';
+import { ResponseBodyWithPaginationHeaderResult } from '../_models/pagination';
 import { User } from '../_models/user';
 import { UserParams } from '../_models/userParams';
 import { AccountService } from './account.service';
+import { getPaginatedResult, initPaginationQueryStringParams } from './paginationHelper';
 
 @Injectable({
   providedIn: 'root',
@@ -55,7 +56,7 @@ export class MembersService {
     if (this.memberCache.has(queryParamsKey))
       return of(this.memberCache.get(queryParamsKey)); //observable
 
-    let params = this.getPaginationHeaders(
+    let params = initPaginationQueryStringParams(
       userParams.pageNumber,
       userParams.pageSize
     );
@@ -72,10 +73,8 @@ export class MembersService {
     //and then after observing manually decode the parts of response (body and headers)
 
     //should be observable too
-    return this.getPaginatedResult<Member[]>(
-      this.baseUrl + 'users',
-      params
-    ).pipe(
+    return getPaginatedResult<Member[]>(this.baseUrl + 'users', params, this.http)
+      .pipe(
       map((members) => {
         //this.memberCache[queryParamsKey] = members; //doesn't work
         this.memberCache.set(queryParamsKey, members);
@@ -123,11 +122,11 @@ export class MembersService {
   }
 
   getLikes(predicate: string, pageNumber, pageSize) {
-    let params = this.getPaginationHeaders(pageNumber, pageSize);
+    let params = initPaginationQueryStringParams(pageNumber, pageSize);
 
     params = params.append('predicate', predicate);
-    
-    return this.getPaginatedResult<Partial<Member[]>>(this.baseUrl + 'likes', params);
+
+    return getPaginatedResult<Partial<Member[]>>(this.baseUrl + 'likes', params, this.http);
   }
 
   getLikesNaive(predicate: string) {
@@ -142,32 +141,4 @@ export class MembersService {
     return this.http.delete(this.baseUrl + 'users/delete-photo/' + photoId);
   }
 
-  private getPaginatedResult<T>(url, params) {
-    //remember last pagination response result
-    const paginatedResult: PaginatedResult<T> = new PaginatedResult<T>();
-    return this.http.get<T>(url, { observe: 'response', params }).pipe(
-      map((response) => {
-        paginatedResult.appliedResult = response.body;
-        //Uppercase - will return from HttpHeaders
-        if (response.headers.get('Pagination') !== null) {
-          paginatedResult.pagination = JSON.parse(
-            response.headers.get('Pagination')
-          );
-        }
-
-        return paginatedResult;
-      })
-    );
-  }
-
-  private getPaginationHeaders(pageNumber: number, pageSize: number) {
-    //HTTP request/response body that represents serialized parameters
-    let params = new HttpParams();
-
-    //add pagination params to our API request
-    params = params.append('pageNumber', pageNumber.toString());
-    params = params.append('pageSize', pageSize.toString());
-
-    return params;
-  }
 }

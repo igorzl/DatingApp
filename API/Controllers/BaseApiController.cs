@@ -5,7 +5,7 @@ namespace API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [ServiceFilter(typeof(LogUserActivity))]
+    [ServiceFilter(typeof(LoginUserActivity))]
     public class BaseApiController : ControllerBase
     {
         

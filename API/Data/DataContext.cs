@@ -14,6 +14,7 @@ namespace API.Data
         //we don't need Photos as independent entity
 
         public DbSet<UserLike> Likes { get; set; }
+        public DbSet<Message> Messages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder) {
             base.OnModelCreating(builder);
@@ -35,6 +36,22 @@ namespace API.Data
                 .WithMany(m => m.LikedByUsers) //AppUser
                 .HasForeignKey(fk => fk.LikedUserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            //configure messages recipient
+            builder.Entity<Message>()
+                .HasOne(s => s.Recipient)
+                .WithMany(m => m.MessagesReceived)
+                .HasForeignKey(fk => fk.RecipientId)
+                //we don't want delete the message until sender will delete them
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //configure messages sender
+            builder.Entity<Message>()
+                .HasOne(s => s.Sender)
+                .WithMany(m => m.MessagesSent)
+                .HasForeignKey(fk => fk.SenderId)
+                //we don't want delete the message until recipient will delete them
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

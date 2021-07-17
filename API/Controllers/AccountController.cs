@@ -36,7 +36,11 @@ namespace API.Controllers
 
             var user = _mapper.Map<AppUser>(registerDto);
 
-            //1) encrypt password with generated MAC key (salt) + 2) hash SHA512 of encrypted value
+            // HMAC uses two passes of hash computation.
+            // The secret key is first used to derive two keys – inner and outer.
+            // The first pass of the algorithm produces an internal hash derived from the message and the inner key.
+            // The second pass produces the final HMAC code derived from the inner hash result and the outer key.
+            // Thus the algorithm provides better immunity against length extension attacks.
             var hmac = new HMACSHA512();
 
             user.UserName = registerDto.Username.ToLower();
