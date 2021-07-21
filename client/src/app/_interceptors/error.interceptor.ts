@@ -41,7 +41,7 @@ export class ErrorInterceptor implements HttpInterceptor {
               //intercepts Login error: see
               // 1) API "AccountController.cs" - return Unauthorized("Invalid user name")
               // 2) nav.component.ts -> login() -> this.toastr.error(error.error) (now removed)
-              this.toastr.error(error.error, error.status);
+              this.toastr.error(error.statusText, error.status);
               break;
             case 404:
               this.router.navigateByUrl('/not-found');

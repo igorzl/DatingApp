@@ -31,6 +31,7 @@ namespace API.Controllers
             _photoService = photoService;
         }
 
+        //[Authorize(Roles = "Admin")]
         [HttpGet]
         //user params - http request query
         public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers([FromQuery] UserParams userParams)
@@ -53,6 +54,7 @@ namespace API.Controllers
         }
 
         //api/users/doris
+        //[Authorize(Roles = "Member")]
         [HttpGet("{username}", Name ="GetUser")]
         public async Task<ActionResult<MemberDto>> GetUser(string username)
         {

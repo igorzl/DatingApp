@@ -30,7 +30,7 @@ export class AccountService {
       );
   }
 
-  //here "model" will be received from HTML template
+  //here "model" will be received from HTML template: see "model.username" and "model.password"
   //from <User> compiler infer generic type for all cases inside this.http.post call
   login(model: any) {
     return this.http.post<User>(this.baseUrl + 'account/login', model)
@@ -45,6 +45,17 @@ export class AccountService {
   }
 
   setCurrentUser(user: User | undefined) {
+    user.roles = [];
+
+    //token payload data has field "role" (see token in jwt.io)
+    //   "roles": [
+    //     "Member",
+    //     "Moderator"
+    // ]
+    const roles = this.getDecodedToken(user.token).role;
+    // array of strings or just a string
+    Array.isArray(roles) ? user.roles = roles : user.roles.push(roles);
+
     localStorage.setItem('user', JSON.stringify(user));
     this.currentUserSource.next(user);
   }
@@ -52,5 +63,9 @@ export class AccountService {
   logout() {
     localStorage.removeItem('user');
     this.currentUserSource.next(undefined);
+  }
+
+  getDecodedToken(token) {
+    return JSON.parse(atob(token.split('.')[1])); //token payload
   }
 }
